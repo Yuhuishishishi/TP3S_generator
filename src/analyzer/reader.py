@@ -21,8 +21,9 @@ class TestRequest:
 
     def json_repr(self):
         o = self
-        return dict(test_id=o.tid, release=o.release, deadline=o.deadline, prep=o.prep, tat=o.tat, analysis=o.analysis,
-                    dur=o.dur)
+        return dict(test_id=int(o.tid), release=int(o.release), deadline=int(o.deadline),
+                    prep=int(o.prep), tat=int(o.tat), analysis=int(o.analysis),
+                    dur=int(o.dur))
 
 
 class Vehicle:
@@ -35,7 +36,7 @@ class Vehicle:
 
     def json_repr(self):
         o = self
-        return dict(release=o.release, vehicle_id=o.vid)
+        return dict(release=int(o.release), vehicle_id=int(o.vid))
 
 
 # ========================================== json encoders ==================================
