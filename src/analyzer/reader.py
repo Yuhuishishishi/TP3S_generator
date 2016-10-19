@@ -1,4 +1,6 @@
 import json
+from collections import defaultdict
+from json.encoder import JSONEncoder
 
 
 class TestRequest:
@@ -17,6 +19,11 @@ class TestRequest:
     def __repr__(self):
         return str(self.tid), str(self.release), str(self.dur), str(self.deadline)
 
+    def json_repr(self):
+        o = self
+        return dict(test_id=o.tid, release=o.release, deadline=o.deadline, prep=o.prep, tat=o.tat, analysis=o.analysis,
+                    dur=o.dur)
+
 
 class Vehicle:
     def __init__(self, vid, release):
@@ -26,6 +33,12 @@ class Vehicle:
     def __repr__(self):
         return str(self.vid), str(self.release)
 
+    def json_repr(self):
+        o = self
+        return dict(release=o.release, vehicle_id=o.vid)
+
+
+# ========================================== json encoders ==================================
 
 class Instance:
     def __init__(self, test_arr, vehicle_arr, rehit_rules):
@@ -33,9 +46,27 @@ class Instance:
         self.vehicle_arr = vehicle_arr
         self.rehit_rules = rehit_rules
 
-        # general information
-        self.num_test = len(test_arr)
-        self.num_vehicle = len(vehicle_arr)
+    @property
+    def num_test(self):
+        return len(self.test_arr)
+
+    @property
+    def num_vehicle(self):
+        return len(self.vehicle_arr)
+
+    def json_repr(self):
+        rehit = defaultdict(dict)
+        for pair in self.rehit_rules:
+            first, second = pair
+            rehit[str(first)][str(second)] = self.rehit_rules[pair]
+        return dict(tests=self.test_arr, vehicles=self.vehicle_arr, rehit=rehit)
+
+
+class TP3SInstanceEncoder(JSONEncoder):
+    def default(self, o):
+        if hasattr(o, "json_repr"):
+            return o.json_repr()
+        return super(TP3SInstanceEncoder, self).default(o)
 
 
 class TP3SReader:
